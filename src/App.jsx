@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const WHOOP_CLIENT_ID = "c96f7f4f-3dba-45a2-8393-1379b488e2dc";
-const WHOOP_REDIRECT_URI = window.location.origin + window.location.pathname;
+const WHOOP_REDIRECT_URI = "https://whoop-kz-app.vercel.app/";
 const WHOOP_AUTH_URL = "https://api.prod.whoop.com/oauth/oauth2/auth";
 const WHOOP_TOKEN_URL = "https://api.prod.whoop.com/oauth/oauth2/token";
 const WHOOP_API_BASE = "https://api.prod.whoop.com/developer/v1";
