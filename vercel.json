@@ -1,11 +1,8 @@
 {
-  "functions": {
-    "api/token.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/token", "destination": "/api/token" },
+    { "source": "/api/token", "destination": "/api/token.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
