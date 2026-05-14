@@ -66,7 +66,7 @@ function sleepColor(s) { return s >= 85 ? "#a78bfa" : s >= 70 ? "#818cf8" : "#60
 // ─── OAUTH ────────────────────────────────────────────────────────────────────
 function startOAuth() {
   const state = Math.random().toString(36).slice(2);
-  sessionStorage.setItem("whoop_state", state);
+  localStorage.setItem("whoop_state", state);
   window.location.href = `${WHOOP_AUTH_URL}?${new URLSearchParams({ client_id: WHOOP_CLIENT_ID, redirect_uri: WHOOP_REDIRECT_URI, response_type: "code", scope: WHOOP_SCOPES, state })}`;
 }
 async function exchangeCode(code) {
@@ -494,7 +494,7 @@ function ConnectScreen({ onDemo }) {
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function WHOOPRu() {
-  const [token, setToken] = useState(() => sessionStorage.getItem("whoop_token"));
+  const [token, setToken] = useState(() => localStorage.getItem("whoop_token"));
   const [demo, setDemo] = useState(false);
   const [tab, setTab] = useState("recovery");
   const [loading, setLoading] = useState(false);
@@ -511,10 +511,10 @@ export default function WHOOPRu() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     const state = params.get("state");
-    if (code && state === sessionStorage.getItem("whoop_state")) {
+    if (code && state === localStorage.getItem("whoop_state")) {
       window.history.replaceState({}, "", window.location.pathname);
       exchangeCode(code)
-        .then(d => { sessionStorage.setItem("whoop_token", d.access_token); setToken(d.access_token); })
+        .then(d => { localStorage.setItem("whoop_token", d.access_token); setToken(d.access_token); })
         .catch(e => setError("Ошибка авторизации: " + e.message));
     }
   }, []);
@@ -545,7 +545,7 @@ export default function WHOOPRu() {
     setStrain(DEMO_STRAIN); setWorkouts(DEMO_WORKOUTS);
   }
   function logout() {
-    sessionStorage.removeItem("whoop_token");
+    localStorage.removeItem("whoop_token");
     setToken(null); setDemo(false); setProfile(null);
   }
 
