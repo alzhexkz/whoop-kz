@@ -70,9 +70,13 @@ function startOAuth() {
   window.location.href = `${WHOOP_AUTH_URL}?${new URLSearchParams({ client_id: WHOOP_CLIENT_ID, redirect_uri: WHOOP_REDIRECT_URI, response_type: "code", scope: WHOOP_SCOPES, state })}`;
 }
 async function exchangeCode(code) {
-  const r = await fetch(WHOOP_TOKEN_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "authorization_code", code, redirect_uri: WHOOP_REDIRECT_URI, client_id: WHOOP_CLIENT_ID }) });
-  if (!r.ok) throw new Error("Token error");
-  return r.json();
+  const resp = await fetch("/api/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code, redirect_uri: WHOOP_REDIRECT_URI }),
+  });
+  if (!resp.ok) throw new Error("Token exchange failed");
+  return resp.json();
 }
 async function whoopGet(path, token) {
   const r = await fetch(`${WHOOP_API_BASE}${path}`, { headers: { Authorization: `Bearer ${token}` } });
