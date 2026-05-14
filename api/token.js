@@ -1,7 +1,13 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
+export const config = {
+  runtime: 'edge',
+}
 
-  const { code, redirect_uri } = req.body;
+export default async function handler(req) {
+  if (req.method !== "POST") {
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+
+  const { code, redirect_uri } = await req.json();
 
   const params = new URLSearchParams({
     grant_type: "authorization_code",
@@ -18,6 +24,8 @@ export default async function handler(req, res) {
   });
 
   const data = await resp.json();
-  if (!resp.ok) return res.status(resp.status).json(data);
-  res.status(200).json(data);
+  return new Response(JSON.stringify(data), {
+    status: resp.status,
+    headers: { "Content-Type": "application/json" },
+  });
 }
