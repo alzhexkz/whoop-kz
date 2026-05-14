@@ -79,7 +79,9 @@ async function exchangeCode(code) {
   return resp.json();
 }
 async function whoopGet(path, token) {
-  const r = await fetch(`${WHOOP_API_BASE}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+  const r = await fetch(`/api/token?path=${encodeURIComponent(path)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   if (!r.ok) throw new Error(`API ${r.status}`);
   return r.json();
 }
