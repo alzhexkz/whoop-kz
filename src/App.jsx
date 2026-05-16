@@ -522,24 +522,26 @@ export default function WHOOPRu() {
   }, []);
 
   useEffect(() => {
-    if (!token || demo) return;
-    setLoading(true);
-    Promise.all([
-      whoopGet("/user/profile/basic", token),
-      whoopGet("/user/measurement/body", token),
-      whoopGet("/recovery?limit=1", token),
-      whoopGet("/activity/sleep?limit=1", token),
-      whoopGet("/cycle?limit=1", token),
-      whoopGet("/activity/workout?limit=5", token),
-    ])
-      .then(([p, b, r, sl, st, w]) => {
-        setProfile(p); setBody(b);
-        setRecovery(r.records?.[0]); setSleep(sl.records?.[0]);
-        setStrain(st.records?.[0]); setWorkouts(w.records ?? []);
-      })
-      .catch(e => setError("Ошибка данных: " + e.message))
-      .finally(() => setLoading(false));
-  }, [token, demo]);
+  if (!token || demo) return;
+  setLoading(true);
+  Promise.allSettled([
+    whoopGet("/user/profile/basic", token),
+    whoopGet("/user/measurement/body", token),
+    whoopGet("/recovery?limit=1", token),
+    whoopGet("/activity/sleep?limit=1", token),
+    whoopGet("/cycle?limit=1", token),
+    whoopGet("/activity/workout?limit=5", token),
+  ])
+    .then(([p, b, r, sl, st, w]) => {
+      if (p.status === "fulfilled") setProfile(p.value);
+      if (b.status === "fulfilled") setBody(b.value);
+      if (r.status === "fulfilled") setRecovery(r.value?.records?.[0]);
+      if (sl.status === "fulfilled") setSleep(sl.value?.records?.[0]);
+      if (st.status === "fulfilled") setStrain(st.value?.records?.[0]);
+      if (w.status === "fulfilled") setWorkouts(w.value?.records ?? []);
+    })
+    .finally(() => setLoading(false));
+}, [token, demo]);
 
   function enterDemo() {
     setDemo(true); setProfile(DEMO_PROFILE); setBody(DEMO_BODY);
