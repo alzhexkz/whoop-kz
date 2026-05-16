@@ -79,9 +79,29 @@ async function exchangeCode(code) {
   return resp.json();
 }
 async function whoopGet(path, token) {
-  const r = await fetch(
+  let r = await fetch(
     `/api/whoop?path=${encodeURIComponent(path)}&token=${encodeURIComponent(token)}`
   );
+  
+  if (r.status === 401) {
+    const refresh = localStorage.getItem("whoop_refresh");
+    if (refresh) {
+      const tr = await fetch("/api/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ grant_type: "refresh_token", refresh_token: refresh }),
+      });
+      if (tr.ok) {
+        const td = await tr.json();
+        localStorage.setItem("whoop_token", td.access_token);
+        if (td.refresh_token) localStorage.setItem("whoop_refresh", td.refresh_token);
+        r = await fetch(
+          `/api/whoop?path=${encodeURIComponent(path)}&token=${encodeURIComponent(td.access_token)}`
+        );
+      }
+    }
+  }
+  
   if (!r.ok) throw new Error(`API ${r.status}`);
   return r.json();
 }
@@ -516,7 +536,11 @@ export default function WHOOPRu() {
     if (code && state === localStorage.getItem("whoop_state")) {
       window.history.replaceState({}, "", window.location.pathname);
       exchangeCode(code)
-        .then(d => { localStorage.setItem("whoop_token", d.access_token); setToken(d.access_token); })
+        .then(d => { 
+  localStorage.setItem("whoop_token", d.access_token); 
+  if (d.refresh_token) localStorage.setItem("whoop_refresh", d.refresh_token);
+  setToken(d.access_token); 
+})
         .catch(e => setError("Ошибка авторизации: " + e.message));
     }
   }, []);
