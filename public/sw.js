@@ -1,4 +1,4 @@
-const CACHE = "whoop-ru-v1";
+const CACHE = "whoop-ru-v2";
 const ASSETS = ["/", "/index.html"];
 
 self.addEventListener("install", (e) => {
@@ -14,16 +14,11 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  // Don't cache WHOOP API calls — always fetch fresh
+  // Никогда не кэшируем API запросы
+  if (e.request.url.includes("/api/")) return;
   if (e.request.url.includes("whoop.com")) return;
 
   e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const clone = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, clone));
-        return res;
-      })
-      .catch(() => caches.match(e.request))
+    fetch(e.request).catch(() => caches.match(e.request))
   );
 });
